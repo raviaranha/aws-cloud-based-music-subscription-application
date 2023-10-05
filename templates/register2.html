@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <title>Registration Page</title>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <h1>Registration Page</h1>
+
+  <form action="{{ url_for('register_validation2') }}" method="post">
+    <p>{{msg}}</p>
+
+    <label for="email">Email:</label>
+    <input type="text" id="email" name="email"><br><br>
+
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username"><br><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password"><br><br>
+
+    <input type="submit" value="register">
+  </form>
+
+  <!-- requires verifying if unique username -->
+  <p><a href="{{ url_for('logout')}}">Login here</a></p>   <!--hide until user already existing. -->
+
+
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Home Page</title>
+  <!-- <script src="{{ url_for('static', filename='script.js') }}"></script> -->
+  <script>
+    function submitQueryForm() {
+      var year = document.getElementById("year1").value;
+      var artist = document.getElementById("artist1").value;
+      var title = document.getElementById("title1").value;
+      console.log(year)
+      fetch("{{ url_for('query_results2') }}", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          year: year,
+          artist: artist,
+          title: title
+        })
+      }).then(response => response.text())
+        .then(html => {
+          const range = document.createRange();
+          const fragment = range.createContextualFragment(html);
+          const newDiv2 = fragment.querySelector('#scrollerBody');
+          const div = document.getElementById("scrollerBody")
+          const newDiv3 = fragment.querySelector('#scrollerUnsubscribe');
+          const div4 = document.getElementById("scrollerUnsubscribe")
+          div.innerHTML = newDiv2.innerHTML
+          div4.innerHTML = newDiv3.innerHTML
+
+
+          const new_qmsg = fragment.querySelector('#qmsg');
+          const label = document.getElementById("qmsg");
+          label.innerHTML = new_qmsg.innerHTML;
+
+        })
+    }
+
+    function submitSubscribe(name) {
+      var year = document.getElementById("year1").value;
+      var artist = document.getElementById("artist1").value;
+      var title = document.getElementById("title1").value;
+      var name = name
+      console.log(name)
+      fetch("{{ url_for('subscribe2') }}", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          year: year,
+          artist: artist,
+          title: title,
+          subscribed_item: name
+        })
+      }).then(response => response.text())
+        .then(html => {
+          const range = document.createRange();
+          const fragment = range.createContextualFragment(html);
+          const newDiv2 = fragment.querySelector('#scrollerUnsubscribe');
+          const div = document.getElementById("scrollerUnsubscribe")
+          div.innerHTML = newDiv2.innerHTML
+        })
+    }
+
+    function submitUnsubscribe(name) {
+      var year = document.getElementById("year1").value;
+      var artist = document.getElementById("artist1").value;
+      var title = document.getElementById("title1").value;
+      var name = name
+      console.log(name)
+      fetch("{{ url_for('unsubscribe2') }}", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          year: year,
+          artist: artist,
+          title: title,
+          unsubscribed_item: name
+        }),
+      }).then(response => response.text())
+        .then(html => {
+          const range = document.createRange();
+          const fragment = range.createContextualFragment(html);
+          const newDiv2 = fragment.querySelector('#scrollerUnsubscribe');
+          const div = document.getElementById("scrollerUnsubscribe")
+          console.log(newDiv2)
+          div.innerHTML = newDiv2.innerHTML
+        })
+    }
+
+    // const tableBody = document.getElementById("subscription_table").getElementsByTagName('tbody')[0];
+    // tableBody.innerHTML = ""; // clear the table before appending new rows
+
+    // data.forEach((item) => {
+    //   const row = document.createElement("tr");
+    //   row.innerHTML = `
+    //     <td>${item.title}</td>
+    //     <td>${item.artist}</td>
+    //     <td>${item.year}</td>
+    //   `;
+    //   tableBody.appendChild(row);
+    // });
+
+  </script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+  <header>
+    <div style="background-color: lightcyan; width: 10%; height: 500px; vertical-align:middle; white-space: pre-line;">
+      Username:
+      {{ user }}</div>
+    <div style="background-color: lightseagreen; width: 50%; height: 520px;">
+      <h1 style="color:black;font-size:18px;">Subscription Area</h1>
+      <div class="scroller" id="scrollerUnsubscribe" style="background-color: #20b2aa; height: 460px;">
+        <h1 style="color:black;font-size:15px;">Subscriptions:</h1>
+
+        <table>
+          <thead style="font-size: 15px;">
+            <tr>
+              <th style = "background-color:lightgray; font-size: 13px; ">Title</th>
+              <th style = "background-color:lightgray; font-size: 13px; ">Artist</th>
+              <th style = "background-color:lightgray; font-size: 13px; ">Year</th>
+              <th style = "background-color:lightgray; font-size: 13px; ">Artist Image</th>
+              <th style = "background-color:lightgray; font-size: 13px; ">Remove Subscription</th>
+            </tr>
+          </thead style="border-collapse: collapse, width:100%, background-color:blue">
+          <tbody>
+            {% for subscription in subscription_table %}
+            <tr>
+              {% set subscription_info = subscription.name.rsplit(',', 2) %}
+              <td style="font-size: 13px;">{{ subscription_info[0] }}</td>
+              <td style="font-size: 13px;">{{ subscription_info[1] }}</td>
+              <td style="font-size: 13px;">{{ subscription_info[2] }}</td>
+              <td rowspan="1">
+                <img src="{{ subscription.img_url }}" style="max-width: 40px; height: auto;">
+              </td>
+              <td>
+                <input type="hidden" name="row_id" id="artistNameUns{{ loop.index }}" value="{{ subscription.name }}">
+                <button
+                  onclick="submitUnsubscribe(document.getElementById('artistNameUns{{ loop.index }}').value)">Remove</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div style="background-color: rgb(94, 163, 186); width: 50%; height: 520px;">
+      <div>
+        <h1 style="color:black;font-size:18px;">Query Area
+          <div>
+            <label for="title" style="color:rgb(40, 70, 95);font-size:15px;padding:10px;">Title:</label><br>
+            <input id="title1" name="title" rows="1" placeholder="{{ title }}"></input><br>
+            <label for="year" style="color:rgb(40, 70, 95);font-size:15px;">Year:</label><br>
+            <input id="year1" name="year" rows="1" placeholder="{{ year }}"></input><br>
+            <label for="artist" style="color:rgb(40, 70, 95);font-size:15px;">Artist:</label><br>
+            <input id="artist1" name="artist" rows="1" placeholder="{{ artist }}"></input><br><br>
+            <p for="qmsg" id="qmsg" style="color:black;font-size:15px;">{{qmsg}}</p><br>
+            <!-- <p>sample text</p> -->
+          </div>
+          <button onclick="submitQueryForm()">Query</button>
+        </h1>
+      </div>
+      <div class="scroller" style="height:240px;" id="scrollerBody">
+        <h1 style="color:black;font-size:15px;">Results:</h1>
+
+        <table>
+          <thead style="font-size: 15px;">
+            <tr>
+              <th style = "background-color:lightgray; font-size: 13px; ">Title</th>
+              <th style = "background-color:lightgray; font-size: 13px; ">Artist</th>
+              <th style = "background-color:lightgray; font-size: 13px; ">Year</th>
+              <th style = "background-color:lightgray; font-size: 13px; ">Artist Image</th>
+              <th style = "background-color:lightgray; font-size: 13px; ">Subscribe</th>
+            </tr>
+          </thead style="border-collapse: collapse, width:100%, background-color:blue">
+          <tbody>
+            {% for row in query_table %}
+            <tr>
+              {% set row_info = row.name.rsplit(',', 2) %}
+              <td style="font-size: 13px;">{{ row_info[0] }}</td>
+              <td style="font-size: 13px;">{{ row_info[1] }}</td>
+              <td style="font-size: 13px;">{{ row_info[2] }}</td>
+              <td rowspan="1">
+                <img src="{{ row.img_url }}" style="max-width: 40px; height: auto;">
+              </td>
+              <td>
+                <input type="hidden" name="row_id" id="artistNameSub{{ loop.index }}" value="{{ row.name }}">
+                <button
+                  onclick="submitSubscribe(document.getElementById('artistNameSub{{ loop.index }}').value)">Subscribe</button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+
+
+
+        <!-- <ul>
+          {% for row in query_table %}
+          <li style="color:darkslategrey;font-size:14px;list-style: none">
+            <div id="">{{ row.name }}</div>
+          </li>
+          <img src="{{ row.img_url }}">
+          <input type="hidden" name="row_id" id="artistNameSub{{ loop.index }}" value="{{ row.name }}">
+          <button
+            onclick="submitSubscribe(document.getElementById('artistNameSub{{ loop.index }}').value)">Subscribe</button>
+          {% endfor %}
+        </ul> -->
+      </div>
+    </div>
+  </header>
+  <p><a href="{{ url_for('logout') }}">Logout Here</a></p>
+</body>
+
+</html>
